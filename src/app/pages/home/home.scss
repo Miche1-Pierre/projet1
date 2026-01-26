@@ -49,18 +49,6 @@
       border-radius: 4px;
     }
 
-    button {
-      width: 32px;
-      height: 32px;
-      padding: 0;
-      opacity: 0;
-      transition: all 0.3s ease;
-    }
-
-    &:hover button {
-      opacity: 1;
-    }
-
     .delete-button {
       position: absolute;
       top: 4px;
