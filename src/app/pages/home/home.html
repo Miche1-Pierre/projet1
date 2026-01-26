@@ -34,14 +34,18 @@
 
             <!-- Déplacement (dessus, dessous) -->
             <div class="move-btn">
+                @if (imgIdx > 0) {
                 <button mat-mini-fab color="primary" aria-label="Déplacer l'image vers le haut" class="move-up-button"
                     (click)="moveImageUp(item, imgIdx)">
                     <mat-icon>arrow_upward</mat-icon>
                 </button>
-                <button mat-mini-fab color="primary" aria-label="Déplacer l'image vers le bas" class="move-down-button"
+                }
+                @if (imgIdx < item.images.length - 1) { <button mat-mini-fab color="primary"
+                    aria-label="Déplacer l'image vers le bas" class="move-down-button"
                     (click)="moveImageDown(item, imgIdx)">
                     <mat-icon>arrow_downward</mat-icon>
-                </button>
+                    </button>
+                    }
             </div>
         </div>
         }
