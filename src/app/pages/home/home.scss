@@ -50,6 +50,9 @@
     }
 
     button {
+      width: 32px;
+      height: 32px;
+      padding: 0;
       opacity: 0;
       transition: all 0.3s ease;
     }
@@ -63,10 +66,7 @@
       top: 4px;
       right: 4px;
       z-index: 2;
-
-      &:hover {
-        color: #e60000;
-      }
+      color: red;
     }
 
     .move-btn {
@@ -79,12 +79,6 @@
       justify-content: space-between;
       gap: 4px;
       z-index: 2;
-
-      button {
-        width: 32px;
-        height: 32px;
-        padding: 0;
-      }
 
       .move-up-button:hover {
         color: green;
