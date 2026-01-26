@@ -1,0 +1,115 @@
+.category-card {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  margin: 5px 50px 0 50px;
+  flex-direction: row;
+  align-items: center;
+  background-color: #f9f9f9;
+  gap: 50px;
+
+  .title {
+    width: 150px;
+    height: 150px;
+    border-radius: 8px 0 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &.color-0 {
+      background-color: #ff9999;
+    }
+    &.color-1 {
+      background-color: #ffcf99;
+    }
+    &.color-2 {
+      background-color: #b9ff99;
+    }
+    &.color-3 {
+      background-color: #99ffd8;
+    }
+    &.color-4 {
+      background-color: #a399ff;
+    }
+  }
+
+  .content {
+    flex: 1;
+    text-align: left;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+
+    img {
+      width: 120px;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    button {
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    &:hover button {
+      opacity: 1;
+    }
+
+    .delete-button {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      z-index: 2;
+
+      &:hover {
+        color: #e60000;
+      }
+    }
+
+    .move-btn {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+      z-index: 2;
+
+      button {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+      }
+
+      .move-up-button:hover {
+        color: green;
+      }
+
+      .move-down-button:hover {
+        color: green;
+      }
+    }
+  }
+}
+
+.add-image {
+  margin-top: 20px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+
+  input {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 250px;
+    height: 20px;
+  }
+}

@@ -1,1 +1,50 @@
-<p>home works!</p>
+<div class="add-image" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+    <mat-form-field appearance="outline" style="width: 250px;">
+        <mat-label>URL de l'image</mat-label>
+        <input matInput [(ngModel)]="inputUrlImage" placeholder="URL de l'image" />
+    </mat-form-field>
+    <mat-form-field appearance="outline" style="min-width: 180px;">
+        <mat-label>Catégorie</mat-label>
+        <mat-select [(ngModel)]="selectedCategory">
+            <mat-option [value]="null">Choisir une catégorie</mat-option>
+            @for (item of categories; let i = $index; track $index) {
+            <mat-option [value]="item">{{item.titre}}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="addImageToCategory(selectedCategory)">Ajouter</button>
+</div>
+
+@for (item of categories; let i = $index; track $index) {
+<div class="category-card">
+    <div class="title" [ngClass]="'color-' + i">
+        {{item.titre}}
+    </div>
+    <div class="content">
+        @for (img of item.images; let imgIdx = $index; track $index) {
+        <div style="position: relative; display: inline-block;">
+            <!-- Affichage -->
+            <img [src]="img" [alt]="item.titre" />
+
+            <!-- Suppression -->
+            <button mat-mini-fab color="warn" aria-label="Supprimer l'image" class="delete-button"
+                (click)="removeImageFromCategory(item, imgIdx)">
+                <mat-icon>delete</mat-icon>
+            </button>
+
+            <!-- Déplacement (dessus, dessous) -->
+            <div class="move-btn">
+                <button mat-mini-fab color="primary" aria-label="Déplacer l'image vers le haut" class="move-up-button"
+                    (click)="moveImageUp(item, imgIdx)">
+                    <mat-icon>arrow_upward</mat-icon>
+                </button>
+                <button mat-mini-fab color="primary" aria-label="Déplacer l'image vers le bas" class="move-down-button"
+                    (click)="moveImageDown(item, imgIdx)">
+                    <mat-icon>arrow_downward</mat-icon>
+                </button>
+            </div>
+        </div>
+        }
+    </div>
+</div>
+}
