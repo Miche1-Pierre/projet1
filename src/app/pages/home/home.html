@@ -24,21 +24,27 @@
         @for (img of item.images; let imgIdx = $index; track $index) {
         <div style="position: relative; display: inline-block;" (mouseenter)="hoveredImg = i + '-' + imgIdx"
             (mouseleave)="hoveredImg = null">
+
+            <!-- Affichage -->
             <img [src]="img" [alt]="item.titre" />
+
+            <!-- Suppression -->
             @if (hoveredImg === (i + '-' + imgIdx)) {
             <button mat-mini-fab color="warn" aria-label="Supprimer l'image" class="delete-button"
                 (click)="removeImageFromCategory(item, imgIdx)">
                 <mat-icon>delete</mat-icon>
             </button>
+
+            <!-- Déplacement -->
             <div class="move-btn">
-                @if (imgIdx > 0) {
-                <button mat-mini-fab color="primary" aria-label="Déplacer l'image vers le haut" class="move-up-button"
-                    (click)="moveImageUp(item, imgIdx)">
+                @if (i > 0) {
+                <button mat-mini-fab color="primary" aria-label="Monter l'image dans la catégorie précédente"
+                    class="move-up-button" (click)="moveImageUp(item, imgIdx)">
                     <mat-icon>arrow_upward</mat-icon>
                 </button>
                 }
-                @if (imgIdx < item.images.length - 1) { <button mat-mini-fab color="primary"
-                    aria-label="Déplacer l'image vers le bas" class="move-down-button"
+                @if (i < categories.length - 1) { <button mat-mini-fab color="primary"
+                    aria-label="Descendre l'image dans la catégorie suivante" class="move-down-button"
                     (click)="moveImageDown(item, imgIdx)">
                     <mat-icon>arrow_downward</mat-icon>
                     </button>
