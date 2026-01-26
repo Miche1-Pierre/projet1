@@ -24,6 +24,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
   styleUrl: './home.scss',
 })
 export class Home {
+  hoveredImg: string | null = null;
   categories = [
     {
       titre: 'S',

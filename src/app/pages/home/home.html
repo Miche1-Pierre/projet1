@@ -22,17 +22,14 @@
     </div>
     <div class="content">
         @for (img of item.images; let imgIdx = $index; track $index) {
-        <div style="position: relative; display: inline-block;">
-            <!-- Affichage -->
+        <div style="position: relative; display: inline-block;" (mouseenter)="hoveredImg = i + '-' + imgIdx"
+            (mouseleave)="hoveredImg = null">
             <img [src]="img" [alt]="item.titre" />
-
-            <!-- Suppression -->
+            @if (hoveredImg === (i + '-' + imgIdx)) {
             <button mat-mini-fab color="warn" aria-label="Supprimer l'image" class="delete-button"
                 (click)="removeImageFromCategory(item, imgIdx)">
                 <mat-icon>delete</mat-icon>
             </button>
-
-            <!-- Déplacement (dessus, dessous) -->
             <div class="move-btn">
                 @if (imgIdx > 0) {
                 <button mat-mini-fab color="primary" aria-label="Déplacer l'image vers le haut" class="move-up-button"
@@ -47,6 +44,7 @@
                     </button>
                     }
             </div>
+            }
         </div>
         }
     </div>
