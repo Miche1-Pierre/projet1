@@ -16,7 +16,7 @@
         [disabled]="!selectedCategory">Ajouter
     </button>
 
-    <mat-slider min="1" max="100" step="1" thumbLabel style="width: 200px;">
+    <mat-slider min="10" max="100" step="1" thumbLabel style="width: 200px;">
         <input matSliderThumb [(ngModel)]="valeurSlider" />
     </mat-slider>
     {{valeurSlider}}
@@ -24,7 +24,7 @@
 
 @for (item of categories; let i = $index; track $index) {
 <div class="category-card">
-    <div class="title" [ngClass]="'color-' + i">
+    <div class="title" [ngStyle]="{ 'font-size': valeurSlider + 'px' }" [ngClass]="'color-' + i">
         {{item.titre}}
     </div>
     <div class="content">

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -8,6 +9,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSliderModule } from '@angular/material/slider';
+
+type Categorie = { titre: string; images: string[] };
 
 @Component({
   selector: 'app-home',
@@ -26,6 +29,8 @@ import { MatSliderModule } from '@angular/material/slider';
   styleUrls: ['./home.scss'],
 })
 export class Home implements OnInit {
+  private readonly http = inject(HttpClient);
+
   hoveredImg: string | null = null;
   categories: Categorie[] = [];
   valeurSlider: number = 50;
@@ -44,19 +49,37 @@ export class Home implements OnInit {
     if (categoriesSauvegardeJSON) {
       this.categories = JSON.parse(categoriesSauvegardeJSON);
     } else {
-      this.categories = [
-        { titre: 'S', images: [] },
-        { titre: 'A', images: [] },
-        { titre: 'B', images: [] },
-        { titre: 'C', images: [] },
-        { titre: 'D', images: [] },
-        { titre: 'E', images: [] },
-      ];
+      this.http.get<Categorie[]>('http://localhost:3000/categories').subscribe({
+        next: (data) => {
+          this.categories = data;
+          this.sauvegarder();
+          console.log("Catégories chargées depuis l'API:", data);
+        },
+        error: (error) => {
+          console.error('Erreur lors du chargement des catégories :', error);
+        },
+      });
     }
   }
 
   sauvegarder() {
     localStorage.setItem('sauvegarde', JSON.stringify(this.categories));
+  }
+
+  /* Charger depuis l'API */
+  chargerDepuisAPI() {
+    this.http.get<Categorie[]>('http://localhost:3000/categories').subscribe({
+      next: (data) => {
+        this.categories = data;
+        this.sauvegarder();
+        console.log('Catégories chargées depuis l\'API:', data);
+        alert('Catégories chargées avec succès depuis l\'API !');
+      },
+      error: (error) => {
+        console.error('Erreur lors du chargement des catégories :', error);
+        alert('Erreur : ' + error.message);
+      }
+    });
   }
 
   /* Vérifier si une image est celle qui vient d'être déplacée */
