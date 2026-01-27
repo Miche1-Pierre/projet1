@@ -12,7 +12,7 @@
             }
         </mat-select>
     </mat-form-field>
-    <button mat-raised-button color="primary" (click)="addImageToCategory(selectedCategory)">Ajouter</button>
+    <button mat-raised-button color="primary" (click)="addImageToCategory(selectedCategory!)" [disabled]="!selectedCategory">Ajouter</button>
 </div>
 
 @for (item of categories; let i = $index; track $index) {
