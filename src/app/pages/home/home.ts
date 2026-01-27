@@ -7,6 +7,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatSliderModule } from '@angular/material/slider';
 
 @Component({
   selector: 'app-home',
@@ -19,6 +20,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
     MatToolbarModule,
     CommonModule,
     FormsModule,
+    MatSliderModule,
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
@@ -26,6 +28,7 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 export class Home implements OnInit {
   hoveredImg: string | null = null;
   categories: Categorie[] = [];
+  valeurSlider: number = 50;
 
   // Tracking de l'image déplacée
   movedImage: {
@@ -58,9 +61,11 @@ export class Home implements OnInit {
 
   /* Vérifier si une image est celle qui vient d'être déplacée */
   isMovedImage(categoryIdx: number, imageIdx: number): boolean {
-    return this.movedImage !== null &&
+    return (
+      this.movedImage !== null &&
       this.movedImage.destCategoryIdx === categoryIdx &&
-      this.movedImage.destImageIdx === imageIdx;
+      this.movedImage.destImageIdx === imageIdx
+    );
   }
 
   inputUrlImage = '';
@@ -100,7 +105,7 @@ export class Home implements OnInit {
         sourceCategoryIdx: catIdx,
         sourceImageIdx: imgIdx,
         destCategoryIdx: destCategoryIdx,
-        destImageIdx: destImageIdx
+        destImageIdx: destImageIdx,
       };
 
       // Réinitialiser après 2 secondes
@@ -127,7 +132,7 @@ export class Home implements OnInit {
         sourceCategoryIdx: catIdx,
         sourceImageIdx: imgIdx,
         destCategoryIdx: destCategoryIdx,
-        destImageIdx: destImageIdx
+        destImageIdx: destImageIdx,
       };
 
       // Réinitialiser après 2 secondes
