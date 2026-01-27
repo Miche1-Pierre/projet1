@@ -19,6 +19,7 @@
     <mat-slider min="1" max="100" step="1" thumbLabel style="width: 200px;">
         <input matSliderThumb [(ngModel)]="valeurSlider" />
     </mat-slider>
+    {{valeurSlider}}
 </div>
 
 @for (item of categories; let i = $index; track $index) {
