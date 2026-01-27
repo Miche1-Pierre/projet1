@@ -12,7 +12,8 @@
             }
         </mat-select>
     </mat-form-field>
-    <button mat-raised-button color="primary" (click)="addImageToCategory(selectedCategory!)" [disabled]="!selectedCategory">Ajouter</button>
+    <button mat-raised-button color="primary" (click)="addImageToCategory(selectedCategory!)"
+        [disabled]="!selectedCategory">Ajouter</button>
 </div>
 
 @for (item of categories; let i = $index; track $index) {
@@ -22,8 +23,8 @@
     </div>
     <div class="content">
         @for (img of item.images; let imgIdx = $index; track $index) {
-        <div style="position: relative; display: inline-block;" (mouseenter)="hoveredImg = i + '-' + imgIdx"
-            (mouseleave)="hoveredImg = null">
+        <div style="position: relative; display: inline-block;" [class.image-moved]="isMovedImage(i, imgIdx)"
+            (mouseenter)="hoveredImg = i + '-' + imgIdx" (mouseleave)="hoveredImg = null">
 
             <!-- Affichage -->
             <img [src]="img" [alt]="item.titre" />
