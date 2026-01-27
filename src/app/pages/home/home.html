@@ -7,7 +7,7 @@
         <mat-label>Catégorie</mat-label>
         <mat-select [(ngModel)]="selectedCategory">
             <mat-option [value]="null">Choisir une catégorie</mat-option>
-            @for (item of categories; let i = $index; track $index) {
+            @for (item of categories(); let i = $index; track $index) {
             <mat-option [value]="item">{{item.titre}}</mat-option>
             }
         </mat-select>
@@ -19,24 +19,24 @@
     <mat-slider min="10" max="100" step="1" thumbLabel style="width: 200px;">
         <input matSliderThumb [(ngModel)]="valeurSlider" />
     </mat-slider>
-    {{valeurSlider}}
+    {{valeurSlider()}}
 </div>
 
-@for (item of categories; let i = $index; track $index) {
+@for (item of categories(); let i = $index; track $index) {
 <div class="category-card">
-    <div class="title" [ngStyle]="{ 'font-size': valeurSlider + 'px' }" [ngClass]="'color-' + i">
+    <div class="title" [ngStyle]="{ 'font-size': valeurSlider() + 'px' }" [ngClass]="'color-' + i">
         {{item.titre}}
     </div>
     <div class="content">
         @for (img of item.images; let imgIdx = $index; track $index) {
         <div style="position: relative; display: inline-block;" [class.image-moved]="isMovedImage(i, imgIdx)"
-            (mouseenter)="hoveredImg = i + '-' + imgIdx" (mouseleave)="hoveredImg = null">
+            (mouseenter)="hoveredImg.set(i + '-' + imgIdx)" (mouseleave)="hoveredImg.set(null)">
 
             <!-- Affichage -->
             <img [src]="img" [alt]="item.titre" />
 
             <!-- Suppression -->
-            @if (hoveredImg === (i + '-' + imgIdx)) {
+            @if (hoveredImg() === (i + '-' + imgIdx)) {
             <button mat-mini-fab color="warn" aria-label="Supprimer l'image" class="delete-button"
                 (click)="removeImageFromCategory(item, imgIdx)">
                 <mat-icon>delete</mat-icon>
@@ -50,7 +50,7 @@
                     <mat-icon>arrow_upward</mat-icon>
                 </button>
                 }
-                @if (i < categories.length - 1) { <button mat-mini-fab color="primary"
+                @if (i < categories().length - 1) { <button mat-mini-fab color="primary"
                     aria-label="Descendre l'image dans la catégorie suivante" class="move-down-button"
                     (click)="moveImageDown(item, imgIdx)">
                     <mat-icon>arrow_downward</mat-icon>
