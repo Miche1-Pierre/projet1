@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit, inject, signal, WritableSignal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatInputModule } from '@angular/material/input';
@@ -66,29 +66,36 @@ export class Home implements OnInit {
     localStorage.setItem('sauvegarde', JSON.stringify(this.categories()));
   }
 
-  /* Charger depuis l'API */
-  chargerDepuisAPI() {
+  /* Recharger les catégories depuis l'API */
+  refreshCategories(showAlert: boolean = false) {
     this.http.get<Categorie[]>('http://localhost:3000/categories').subscribe({
       next: (data) => {
         this.categories.set(data);
         this.sauvegarder();
-        console.log("Catégories chargées depuis l'API:", data);
-        alert("Catégories chargées avec succès depuis l'API !");
+        console.log("Catégories rechargées depuis l'API:", data);
+        if (showAlert) {
+          alert("Catégories chargées avec succès depuis l'API !");
+        }
       },
       error: (error) => {
         console.error('Erreur lors du chargement des catégories :', error);
-        alert('Erreur : ' + error.message);
+        if (showAlert) {
+          alert('Erreur : ' + error.message);
+        }
       },
     });
+  }
+
+  /* Charger depuis l'API (alias pour le bouton) */
+  chargerDepuisAPI() {
+    this.refreshCategories(true);
   }
 
   /* Vérifier si une image est celle qui vient d'être déplacée */
   isMovedImage(categoryIdx: number, imageIdx: number): boolean {
     const moved = this.movedImage();
     return (
-      moved !== null &&
-      moved.destCategoryIdx === categoryIdx &&
-      moved.destImageIdx === imageIdx
+      moved !== null && moved.destCategoryIdx === categoryIdx && moved.destImageIdx === imageIdx
     );
   }
 
@@ -107,8 +114,6 @@ export class Home implements OnInit {
         next: (response) => {
           category.images.push(this.inputUrlImage.trim());
           this.inputUrlImage = '';
-
-          // Mettre à jour le signal pour déclencher la réactivité
           this.categories.set([...this.categories()]);
           this.sauvegarder();
           console.log('Image ajoutée avec succès:', response);
@@ -124,9 +129,23 @@ export class Home implements OnInit {
   /* suppression d'une image */
   removeImageFromCategory(category: Categorie, imgIdx: number) {
     if (imgIdx > -1) {
-      category.images.splice(imgIdx, 1);
-      this.categories.set([...this.categories()]);
-      this.sauvegarder();
+      const imageUrl = category.images[imgIdx];
+      const payload = {
+        url: imageUrl,
+        categorie: category.titre
+      };
+
+      this.http.delete('http://localhost:3000/images', { body: payload }).subscribe({
+        next: (response) => {
+          category.images.splice(imgIdx, 1);
+          this.categories.set([...this.categories()]);
+          this.sauvegarder();
+          console.log('Image supprimée avec succès:', response);
+        },
+        error: (error) => {
+          console.error('Erreur lors de la suppression:', error);
+        }
+      });
     }
   }
 
@@ -139,24 +158,40 @@ export class Home implements OnInit {
       const destCategoryIdx = catIdx - 1;
       const destImageIdx = categories[destCategoryIdx].images.length;
 
-      category.images.splice(imgIdx, 1);
-      categories[destCategoryIdx].images.push(image);
-      
-      this.categories.set([...categories]);
-      this.sauvegarder();
+      const payload = {
+        imageUrl: image,
+        sourceCat: category.titre,
+        destCat: categories[destCategoryIdx].titre,
+        direction: 'up',
+      };
 
-      // Enregistrer l'info de déplacement
-      this.movedImage.set({
-        sourceCategoryIdx: catIdx,
-        sourceImageIdx: imgIdx,
-        destCategoryIdx: destCategoryIdx,
-        destImageIdx: destImageIdx,
+      this.http.patch('http://localhost:3000/images/move', payload).subscribe({
+        next: (response) => {
+          category.images.splice(imgIdx, 1);
+          categories[destCategoryIdx].images.push(image);
+
+          this.categories.set([...categories]);
+          this.sauvegarder();
+
+          // Enregistrer l'info de déplacement
+          this.movedImage.set({
+            sourceCategoryIdx: catIdx,
+            sourceImageIdx: imgIdx,
+            destCategoryIdx: destCategoryIdx,
+            destImageIdx: destImageIdx,
+          });
+
+          // Réinitialiser après 2 secondes
+          setTimeout(() => {
+            this.movedImage.set(null);
+          }, 2000);
+
+          console.log('Image déplacée avec succès:', response);
+        },
+        error: (error) => {
+          console.error('Erreur lors du déplacement:', error);
+        },
       });
-
-      // Réinitialiser après 2 secondes
-      setTimeout(() => {
-        this.movedImage.set(null);
-      }, 2000);
     }
   }
 
@@ -169,24 +204,40 @@ export class Home implements OnInit {
       const destCategoryIdx = catIdx + 1;
       const destImageIdx = categories[destCategoryIdx].images.length;
 
-      category.images.splice(imgIdx, 1);
-      categories[destCategoryIdx].images.push(image);
-      
-      this.categories.set([...categories]);
-      this.sauvegarder();
+      const payload = {
+        imageUrl: image,
+        sourceCat: category.titre,
+        destCat: categories[destCategoryIdx].titre,
+        direction: 'down',
+      };
 
-      // Enregistrer l'info de déplacement
-      this.movedImage.set({
-        sourceCategoryIdx: catIdx,
-        sourceImageIdx: imgIdx,
-        destCategoryIdx: destCategoryIdx,
-        destImageIdx: destImageIdx,
+      this.http.patch('http://localhost:3000/images/move', payload).subscribe({
+        next: (response) => {
+          category.images.splice(imgIdx, 1);
+          categories[destCategoryIdx].images.push(image);
+
+          this.categories.set([...categories]);
+          this.sauvegarder();
+
+          // Enregistrer l'info de déplacement
+          this.movedImage.set({
+            sourceCategoryIdx: catIdx,
+            sourceImageIdx: imgIdx,
+            destCategoryIdx: destCategoryIdx,
+            destImageIdx: destImageIdx,
+          });
+
+          // Réinitialiser après 2 secondes
+          setTimeout(() => {
+            this.movedImage.set(null);
+          }, 2000);
+
+          console.log('Image déplacée avec succès:', response);
+        },
+        error: (error) => {
+          console.error('Erreur lors du déplacement:', error);
+        },
       });
-
-      // Réinitialiser après 2 secondes
-      setTimeout(() => {
-        this.movedImage.set(null);
-      }, 2000);
     }
   }
 }
