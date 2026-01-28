@@ -7,7 +7,7 @@
         <mat-label>Catégorie</mat-label>
         <mat-select [(ngModel)]="selectedCategory">
             <mat-option [value]="null">Choisir une catégorie</mat-option>
-            @for (item of categories(); let i = $index; track $index) {
+            @for (item of this.categorie.categories(); let i = $index; track $index) {
             <mat-option [value]="item">{{item.titre}}</mat-option>
             }
         </mat-select>
@@ -22,7 +22,7 @@
     {{valeurSlider()}}
 </div>
 
-@for (item of categories(); let i = $index; track $index) {
+@for (item of this.categorie.categories(); let i = $index; track $index) {
 <div class="category-card">
     <div class="title" [ngStyle]="{ 'font-size': valeurSlider() + 'px' }" [ngClass]="'color-' + i">
         {{item.titre}}
@@ -50,7 +50,7 @@
                     <mat-icon>arrow_upward</mat-icon>
                 </button>
                 }
-                @if (i < categories().length - 1) { <button mat-mini-fab color="primary"
+                @if (i < this.categorie.categories().length - 1) { <button mat-mini-fab color="primary"
                     aria-label="Descendre l'image dans la catégorie suivante" class="move-down-button"
                     (click)="moveImageDown(item, imgIdx)">
                     <mat-icon>arrow_downward</mat-icon>

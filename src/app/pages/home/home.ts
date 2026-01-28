@@ -1,5 +1,4 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
 import { NotificationService } from '../../services/notification';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSliderModule } from '@angular/material/slider';
+import { CategorieService } from '../../services/categorie';
 
 type Categorie = { titre: string; images: string[] };
 
@@ -30,11 +30,10 @@ type Categorie = { titre: string; images: string[] };
   styleUrls: ['./home.scss'],
 })
 export class Home implements OnInit {
-  private readonly http = inject(HttpClient);
-  private readonly notification = inject(NotificationService);
+  readonly notification = inject(NotificationService);
+  readonly categorie = inject(CategorieService);
 
   hoveredImg = signal<string | null>(null);
-  categories = signal<Categorie[]>([]);
   valeurSlider = signal<number>(50);
 
   // Tracking de l'image déplacée
@@ -46,16 +45,10 @@ export class Home implements OnInit {
   } | null>(null);
 
   ngOnInit() {
-    const categoriesSauvegardeJSON = localStorage.getItem('sauvegarde');
-
-    if (categoriesSauvegardeJSON) {
-      this.categories.set(JSON.parse(categoriesSauvegardeJSON));
-    } else {
-      this.http.get<Categorie[]>('http://localhost:3000/categories').subscribe({
-        next: (data) => {
-          this.categories.set(data);
-          this.sauvegarder();
-          this.notification.success("Catégories chargées depuis l'API");
+    if (!this.categorie.chargerDepuisLocalStorage()) {
+      this.categorie.getCategories().subscribe({
+        next: (response) => {
+          this.notification.success(response.message);
         },
         error: (error) => {
           this.notification.error('Erreur lors du chargement des catégories');
@@ -64,32 +57,17 @@ export class Home implements OnInit {
     }
   }
 
-  sauvegarder() {
-    localStorage.setItem('sauvegarde', JSON.stringify(this.categories()));
-  }
-
-  /* Recharger les catégories depuis l'API */
-  refreshCategories(showAlert: boolean = false) {
-    this.http.get<Categorie[]>('http://localhost:3000/categories').subscribe({
-      next: (data) => {
-        this.categories.set(data);
-        this.sauvegarder();
-        if (showAlert) {
-          this.notification.success("Catégories chargées avec succès depuis l'API");
-        }
+  /* Charger depuis l'API */
+  chargerDepuisAPI() {
+    this.categorie.getCategories().subscribe({
+      next: (response) => {
+        this.notification.success(response.message);
       },
       error: (error) => {
-        if (showAlert) {
-          const errorMsg = error?.error?.message || error?.message || 'Erreur inconnue';
-          this.notification.error(`Erreur : ${errorMsg}`);
-        }
+        const errorMsg = error?.error?.message || error?.message || 'Erreur inconnue';
+        this.notification.error(`Erreur : ${errorMsg}`);
       },
     });
-  }
-
-  /* Charger depuis l'API (alias pour le bouton) */
-  chargerDepuisAPI() {
-    this.refreshCategories(true);
   }
 
   /* Vérifier si une image est celle qui vient d'être déplacée */
@@ -106,17 +84,10 @@ export class Home implements OnInit {
   /* ajout d'une image */
   addImageToCategory(category: Categorie) {
     if (category && this.inputUrlImage?.trim()) {
-      const payload = {
-        url: this.inputUrlImage.trim(),
-        categorie: category.titre,
-      };
-
-      this.http.post<any>('http://localhost:3000/images', payload).subscribe({
+      const url = this.inputUrlImage.trim();
+      this.categorie.postImage(category.titre, url).subscribe({
         next: (response) => {
-          category.images.push(this.inputUrlImage.trim());
           this.inputUrlImage = '';
-          this.categories.set([...this.categories()]);
-          this.sauvegarder();
           const message = response?.message || 'Image ajoutée avec succès';
           this.notification.success(message);
         },
@@ -132,16 +103,9 @@ export class Home implements OnInit {
   removeImageFromCategory(category: Categorie, imgIdx: number) {
     if (imgIdx > -1) {
       const imageUrl = category.images[imgIdx];
-      const payload = {
-        url: imageUrl,
-        categorie: category.titre,
-      };
 
-      this.http.delete<any>('http://localhost:3000/images', { body: payload }).subscribe({
+      this.categorie.deleteImage(category.titre, imageUrl).subscribe({
         next: (response) => {
-          category.images.splice(imgIdx, 1);
-          this.categories.set([...this.categories()]);
-          this.sauvegarder();
           const message = response?.message || 'Image supprimée avec succès';
           this.notification.success(message);
         },
@@ -156,97 +120,77 @@ export class Home implements OnInit {
 
   /* Déplace l'image dans la catégorie précédente */
   moveImageUp(category: Categorie, imgIdx: number) {
-    const categories = this.categories();
+    const categories = this.categorie.categories();
     const catIdx = categories.indexOf(category);
     if (catIdx > 0 && imgIdx > -1) {
       const image = category.images[imgIdx];
       const destCategoryIdx = catIdx - 1;
       const destImageIdx = categories[destCategoryIdx].images.length;
 
-      const payload = {
-        imageUrl: image,
-        sourceCat: category.titre,
-        destCat: categories[destCategoryIdx].titre,
-        direction: 'up',
-      };
+      this.categorie
+        .moveImage(image, category.titre, categories[destCategoryIdx].titre, 'up')
+        .subscribe({
+          next: (response) => {
+            // Enregistrer l'info de déplacement
+            this.movedImage.set({
+              sourceCategoryIdx: catIdx,
+              sourceImageIdx: imgIdx,
+              destCategoryIdx: destCategoryIdx,
+              destImageIdx: destImageIdx,
+            });
 
-      this.http.patch<any>('http://localhost:3000/images/move', payload).subscribe({
-        next: (response) => {
-          category.images.splice(imgIdx, 1);
-          categories[destCategoryIdx].images.push(image);
+            // Réinitialiser après 2 secondes
+            setTimeout(() => {
+              this.movedImage.set(null);
+            }, 2000);
 
-          this.categories.set([...categories]);
-          this.sauvegarder();
-
-          // Enregistrer l'info de déplacement
-          this.movedImage.set({
-            sourceCategoryIdx: catIdx,
-            sourceImageIdx: imgIdx,
-            destCategoryIdx: destCategoryIdx,
-            destImageIdx: destImageIdx,
-          });
-
-          // Réinitialiser après 2 secondes
-          setTimeout(() => {
-            this.movedImage.set(null);
-          }, 2000);
-
-          const message = response?.message || 'Image déplacée avec succès';
-          this.notification.info(message);
-        },
-        error: (error) => {
-          const errorMsg = error?.error?.message || error?.message || 'Erreur lors du déplacement';
-          this.notification.error(errorMsg);
-        },
-      });
+            const message = response?.message || 'Image déplacée avec succès';
+            this.notification.info(message);
+          },
+          error: (error) => {
+            const errorMsg =
+              error?.error?.message || error?.message || 'Erreur lors du déplacement';
+            this.notification.error(errorMsg);
+          },
+        });
     }
   }
 
   /* Déplace l'image dans la catégorie suivante */
   moveImageDown(category: Categorie, imgIdx: number) {
-    const categories = this.categories();
+    const categories = this.categorie.categories();
     const catIdx = categories.indexOf(category);
     if (catIdx < categories.length - 1 && imgIdx > -1) {
       const image = category.images[imgIdx];
       const destCategoryIdx = catIdx + 1;
       const destImageIdx = categories[destCategoryIdx].images.length;
 
-      const payload = {
-        imageUrl: image,
-        sourceCat: category.titre,
-        destCat: categories[destCategoryIdx].titre,
-        direction: 'down',
-      };
+      this.categorie
+        .moveImage(image, category.titre, categories[destCategoryIdx].titre, 'down')
+        .subscribe({
+          next: (response) => {
+            // Enregistrer l'info de déplacement
+            this.movedImage.set({
+              sourceCategoryIdx: catIdx,
+              sourceImageIdx: imgIdx,
+              destCategoryIdx: destCategoryIdx,
+              destImageIdx: destImageIdx,
+            });
 
-      this.http.patch<any>('http://localhost:3000/images/move', payload).subscribe({
-        next: (response) => {
-          category.images.splice(imgIdx, 1);
-          categories[destCategoryIdx].images.push(image);
+            // Réinitialiser après 2 secondes
+            setTimeout(() => {
+              this.movedImage.set(null);
+            }, 2000);
 
-          this.categories.set([...categories]);
-          this.sauvegarder();
-
-          // Enregistrer l'info de déplacement
-          this.movedImage.set({
-            sourceCategoryIdx: catIdx,
-            sourceImageIdx: imgIdx,
-            destCategoryIdx: destCategoryIdx,
-            destImageIdx: destImageIdx,
-          });
-
-          // Réinitialiser après 2 secondes
-          setTimeout(() => {
-            this.movedImage.set(null);
-          }, 2000);
-
-          const message = response?.message || 'Image déplacée avec succès';
-          this.notification.info(message);
-        },
-        error: (error) => {
-          const errorMsg = error?.error?.message || error?.message || 'Erreur lors du déplacement';
-          this.notification.error(errorMsg);
-        },
-      });
+            const message = response?.message || 'Image déplacée avec succès';
+            this.notification.info(message);
+          },
+          error: (error) => {
+            const errorMsg =
+              error?.error?.message || error?.message || 'Erreur lors du déplacement';
+            this.notification.error(errorMsg);
+          },
+        });
     }
   }
 }
