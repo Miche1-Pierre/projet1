@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, signal } from '@angular/core';
 import { tap, map } from 'rxjs/operators';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 type ApiResponse = {
   success: boolean;
@@ -30,7 +31,7 @@ export class CategorieService {
   }
 
   getCategories(): Observable<ApiResponse> {
-    return this.http.get<Categorie[]>('http://localhost:3004/categories').pipe(
+    return this.http.get<Categorie[]>(`${environment.URL_API}/categories`).pipe(
       tap((data) => {
         this.categories.set(data);
         this.sauvegarder();
@@ -40,16 +41,16 @@ export class CategorieService {
   }
 
   postCategorie(titre: string) {
-    return this.http.post('http://localhost:3004/categorie', { titre });
+    return this.http.post(`${environment.URL_API}/categorie`, { titre });
   }
 
   deleteCategorie(titre: string) {
-    return this.http.delete('http://localhost:3004/categorie', { body: { titre } });
+    return this.http.delete(`${environment.URL_API}/categorie`, { body: { titre } });
   }
 
   postImage(titreCategorie: string, url: string): Observable<ApiResponse> {
     return this.http
-      .post<ApiResponse>('http://localhost:3004/images', {
+      .post<ApiResponse>(`${environment.URL_API}/images`, {
         categorie: titreCategorie,
         url,
       })
@@ -68,7 +69,7 @@ export class CategorieService {
 
   deleteImage(titreCategorie: string, url: string): Observable<ApiResponse> {
     return this.http
-      .delete<ApiResponse>('http://localhost:3004/images', {
+      .delete<ApiResponse>(`${environment.URL_API}/images`, {
         body: { categorie: titreCategorie, url },
       })
       .pipe(
@@ -94,7 +95,7 @@ export class CategorieService {
     direction: 'up' | 'down',
   ): Observable<ApiResponse> {
     return this.http
-      .patch<ApiResponse>('http://localhost:3004/images/move', {
+      .patch<ApiResponse>(`${environment.URL_API}/images/move`, {
         imageUrl,
         sourceCat,
         destCat,

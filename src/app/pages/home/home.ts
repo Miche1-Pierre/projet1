@@ -51,7 +51,13 @@ export class Home implements OnInit {
           this.notification.success(response.message);
         },
         error: (error) => {
-          this.notification.error('Erreur lors du chargement des catégories');
+          if (error?.status === 404) {
+            this.notification.error('Catégories non trouvées (404)');
+          } else if (error?.status === 409) {
+            this.notification.error('Conflit lors du chargement des catégories (409)');
+          } else {
+            this.notification.error('Erreur lors du chargement des catégories');
+          }
         },
       });
     }
@@ -64,8 +70,14 @@ export class Home implements OnInit {
         this.notification.success(response.message);
       },
       error: (error) => {
-        const errorMsg = error?.error?.message || error?.message || 'Erreur inconnue';
-        this.notification.error(`Erreur : ${errorMsg}`);
+        if (error?.status === 404) {
+          this.notification.error('Catégories non trouvées (404)');
+        } else if (error?.status === 409) {
+          this.notification.error('Conflit lors du chargement des catégories (409)');
+        } else {
+          const errorMsg = error?.error?.message || error?.message || 'Erreur inconnue';
+          this.notification.error(`Erreur : ${errorMsg}`);
+        }
       },
     });
   }
@@ -92,8 +104,14 @@ export class Home implements OnInit {
           this.notification.success(message);
         },
         error: (error) => {
-          const errorMsg = error?.error?.message || error?.message || "Erreur lors de l'ajout";
-          this.notification.error(errorMsg);
+          if (error?.status === 404) {
+            this.notification.error('Catégorie non trouvée (404)');
+          } else if (error?.status === 409) {
+            this.notification.error("Conflit lors de l'ajout de l'image (409)");
+          } else {
+            const errorMsg = error?.error?.message || error?.message || "Erreur lors de l'ajout";
+            this.notification.error(errorMsg);
+          }
         },
       });
     }
@@ -110,9 +128,15 @@ export class Home implements OnInit {
           this.notification.success(message);
         },
         error: (error) => {
-          const errorMsg =
-            error?.error?.message || error?.message || 'Erreur lors de la suppression';
-          this.notification.error(errorMsg);
+          if (error?.status === 404) {
+            this.notification.error('Image ou catégorie non trouvée (404)');
+          } else if (error?.status === 409) {
+            this.notification.error("Conflit lors de la suppression de l'image (409)");
+          } else {
+            const errorMsg =
+              error?.error?.message || error?.message || 'Erreur lors de la suppression';
+            this.notification.error(errorMsg);
+          }
         },
       });
     }
@@ -148,9 +172,15 @@ export class Home implements OnInit {
             this.notification.info(message);
           },
           error: (error) => {
-            const errorMsg =
-              error?.error?.message || error?.message || 'Erreur lors du déplacement';
-            this.notification.error(errorMsg);
+            if (error?.status === 404) {
+              this.notification.error('Image ou catégorie non trouvée (404)');
+            } else if (error?.status === 409) {
+              this.notification.error("Conflit lors du déplacement de l'image (409)");
+            } else {
+              const errorMsg =
+                error?.error?.message || error?.message || 'Erreur lors du déplacement';
+              this.notification.error(errorMsg);
+            }
           },
         });
     }
@@ -186,9 +216,15 @@ export class Home implements OnInit {
             this.notification.info(message);
           },
           error: (error) => {
-            const errorMsg =
-              error?.error?.message || error?.message || 'Erreur lors du déplacement';
-            this.notification.error(errorMsg);
+            if (error?.status === 404) {
+              this.notification.error('Image ou catégorie non trouvée (404)');
+            } else if (error?.status === 409) {
+              this.notification.error("Conflit lors du déplacement de l'image (409)");
+            } else {
+              const errorMsg =
+                error?.error?.message || error?.message || 'Erreur lors du déplacement';
+              this.notification.error(errorMsg);
+            }
           },
         });
     }

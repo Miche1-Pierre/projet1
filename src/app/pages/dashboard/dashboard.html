@@ -1,0 +1,26 @@
+<div class="dashboard-container">
+    <h2>Tableau de bord des catégories</h2>
+    <div class="categories-list">
+        <table class="mat-elevation-z8" style="width:100%;">
+            <thead>
+                <tr>
+                    <th>Catégorie</th>
+                    <th>Nombre d'images</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (cat of this.categories.categories(); let i = $index; track $index) {
+                <tr>
+                    <td>{{cat.titre}}</td>
+                    <td>{{cat.images.length}}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+        @if (this.categories.categories().length === 0) {
+        <div class="empty-message">
+            Aucune catégorie trouvée.
+        </div>
+        }
+    </div>
+</div>
