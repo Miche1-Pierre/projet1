@@ -35,4 +35,53 @@ body {
   margin: 0;
   height: 100%;
 }
+
+// Styles pour les snackbars colorés
+.snackbar-success .mdc-snackbar__surface {
+  background-color: #4caf50 !important;
+}
+
+.snackbar-success .mat-mdc-snack-bar-label {
+  color: #ffffff !important;
+}
+
+.snackbar-success .mat-mdc-button {
+  color: #ffffff !important;
+}
+
+.snackbar-error .mdc-snackbar__surface {
+  background-color: #f44336 !important;
+}
+
+.snackbar-error .mat-mdc-snack-bar-label {
+  color: #ffffff !important;
+}
+
+.snackbar-error .mat-mdc-button {
+  color: #ffffff !important;
+}
+
+.snackbar-warning .mdc-snackbar__surface {
+  background-color: #ff9800 !important;
+}
+
+.snackbar-warning .mat-mdc-snack-bar-label {
+  color: #ffffff !important;
+}
+
+.snackbar-warning .mat-mdc-button {
+  color: #ffffff !important;
+}
+
+.snackbar-info .mdc-snackbar__surface {
+  background-color: #2196f3 !important;
+}
+
+.snackbar-info .mat-mdc-snack-bar-label {
+  color: #ffffff !important;
+}
+
+.snackbar-info .mat-mdc-button {
+  color: #ffffff !important;
+}
 /* You can add global styles to this file, and also import other style files */

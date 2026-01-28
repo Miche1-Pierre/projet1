@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
+import { NotificationService } from '../../services/notification';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSliderModule } from '@angular/material/slider';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 type Categorie = { titre: string; images: string[] };
 
@@ -25,14 +25,13 @@ type Categorie = { titre: string; images: string[] };
     CommonModule,
     FormsModule,
     MatSliderModule,
-    MatSnackBarModule,
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
 export class Home implements OnInit {
   private readonly http = inject(HttpClient);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly notification = inject(NotificationService);
 
   hoveredImg = signal<string | null>(null);
   categories = signal<Categorie[]>([]);
@@ -56,16 +55,10 @@ export class Home implements OnInit {
         next: (data) => {
           this.categories.set(data);
           this.sauvegarder();
-          this.snackBar.open('Catégories chargées avec succès', 'Fermer', { 
-            duration: 3000,
-            panelClass: ['snackbar-success']
-          });
+          this.notification.success("Catégories chargées depuis l'API");
         },
         error: (error) => {
-          this.snackBar.open('Erreur lors du chargement des catégories', 'Fermer', { 
-            duration: 5000,
-            panelClass: ['snackbar-error']
-          });
+          this.notification.error('Erreur lors du chargement des catégories');
         },
       });
     }
@@ -82,19 +75,13 @@ export class Home implements OnInit {
         this.categories.set(data);
         this.sauvegarder();
         if (showAlert) {
-          this.snackBar.open('Catégories chargées avec succès depuis l\'API', 'Fermer', { 
-            duration: 3000,
-            panelClass: ['snackbar-success']
-          });
+          this.notification.success("Catégories chargées avec succès depuis l'API");
         }
       },
       error: (error) => {
         if (showAlert) {
           const errorMsg = error?.error?.message || error?.message || 'Erreur inconnue';
-          this.snackBar.open(`Erreur : ${errorMsg}`, 'Fermer', { 
-            duration: 5000,
-            panelClass: ['snackbar-error']
-          });
+          this.notification.error(`Erreur : ${errorMsg}`);
         }
       },
     });
@@ -131,17 +118,11 @@ export class Home implements OnInit {
           this.categories.set([...this.categories()]);
           this.sauvegarder();
           const message = response?.message || 'Image ajoutée avec succès';
-          this.snackBar.open(message, 'Fermer', { 
-            duration: 3000,
-            panelClass: ['snackbar-success']
-          });
+          this.notification.success(message);
         },
         error: (error) => {
-          const errorMsg = error?.error?.message || error?.message || 'Erreur lors de l\'ajout';
-          this.snackBar.open(errorMsg, 'Fermer', { 
-            duration: 5000,
-            panelClass: ['snackbar-error']
-          });
+          const errorMsg = error?.error?.message || error?.message || "Erreur lors de l'ajout";
+          this.notification.error(errorMsg);
         },
       });
     }
@@ -153,7 +134,7 @@ export class Home implements OnInit {
       const imageUrl = category.images[imgIdx];
       const payload = {
         url: imageUrl,
-        categorie: category.titre
+        categorie: category.titre,
       };
 
       this.http.delete<any>('http://localhost:3000/images', { body: payload }).subscribe({
@@ -162,18 +143,13 @@ export class Home implements OnInit {
           this.categories.set([...this.categories()]);
           this.sauvegarder();
           const message = response?.message || 'Image supprimée avec succès';
-          this.snackBar.open(message, 'Fermer', { 
-            duration: 3000,
-            panelClass: ['snackbar-success']
-          });
+          this.notification.success(message);
         },
         error: (error) => {
-          const errorMsg = error?.error?.message || error?.message || 'Erreur lors de la suppression';
-          this.snackBar.open(errorMsg, 'Fermer', { 
-            duration: 5000,
-            panelClass: ['snackbar-error']
-          });
-        }
+          const errorMsg =
+            error?.error?.message || error?.message || 'Erreur lors de la suppression';
+          this.notification.error(errorMsg);
+        },
       });
     }
   }
@@ -216,17 +192,11 @@ export class Home implements OnInit {
           }, 2000);
 
           const message = response?.message || 'Image déplacée avec succès';
-          this.snackBar.open(message, 'Fermer', { 
-            duration: 2000,
-            panelClass: ['snackbar-info']
-          });
+          this.notification.info(message);
         },
         error: (error) => {
           const errorMsg = error?.error?.message || error?.message || 'Erreur lors du déplacement';
-          this.snackBar.open(errorMsg, 'Fermer', { 
-            duration: 5000,
-            panelClass: ['snackbar-error']
-          });
+          this.notification.error(errorMsg);
         },
       });
     }
@@ -270,17 +240,11 @@ export class Home implements OnInit {
           }, 2000);
 
           const message = response?.message || 'Image déplacée avec succès';
-          this.snackBar.open(message, 'Fermer', { 
-            duration: 2000,
-            panelClass: ['snackbar-info']
-          });
+          this.notification.info(message);
         },
         error: (error) => {
           const errorMsg = error?.error?.message || error?.message || 'Erreur lors du déplacement';
-          this.snackBar.open(errorMsg, 'Fermer', { 
-            duration: 5000,
-            panelClass: ['snackbar-error']
-          });
+          this.notification.error(errorMsg);
         },
       });
     }
