@@ -121,3 +121,38 @@
     height: 20px;
   }
 }
+
+// Styles pour les snackbars colorés
+::ng-deep {
+  .snackbar-success {
+    .mat-mdc-snack-bar-container {
+      --mdc-snackbar-container-color: #4caf50;
+      --mat-snack-bar-button-color: #ffffff;
+      --mdc-snackbar-supporting-text-color: #ffffff;
+    }
+  }
+
+  .snackbar-error {
+    .mat-mdc-snack-bar-container {
+      --mdc-snackbar-container-color: #f44336;
+      --mat-snack-bar-button-color: #ffffff;
+      --mdc-snackbar-supporting-text-color: #ffffff;
+    }
+  }
+
+  .snackbar-warning {
+    .mat-mdc-snack-bar-container {
+      --mdc-snackbar-container-color: #ff9800;
+      --mat-snack-bar-button-color: #ffffff;
+      --mdc-snackbar-supporting-text-color: #ffffff;
+    }
+  }
+
+  .snackbar-info {
+    .mat-mdc-snack-bar-container {
+      --mdc-snackbar-container-color: #2196f3;
+      --mat-snack-bar-button-color: #ffffff;
+      --mdc-snackbar-supporting-text-color: #ffffff;
+    }
+  }
+}

@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSliderModule } from '@angular/material/slider';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 type Categorie = { titre: string; images: string[] };
 
@@ -24,12 +25,14 @@ type Categorie = { titre: string; images: string[] };
     CommonModule,
     FormsModule,
     MatSliderModule,
+    MatSnackBarModule,
   ],
   templateUrl: './home.html',
   styleUrls: ['./home.scss'],
 })
 export class Home implements OnInit {
   private readonly http = inject(HttpClient);
+  private readonly snackBar = inject(MatSnackBar);
 
   hoveredImg = signal<string | null>(null);
   categories = signal<Categorie[]>([]);
@@ -53,10 +56,16 @@ export class Home implements OnInit {
         next: (data) => {
           this.categories.set(data);
           this.sauvegarder();
-          console.log("Catégories chargées depuis l'API:", data);
+          this.snackBar.open('Catégories chargées avec succès', 'Fermer', { 
+            duration: 3000,
+            panelClass: ['snackbar-success']
+          });
         },
         error: (error) => {
-          console.error('Erreur lors du chargement des catégories :', error);
+          this.snackBar.open('Erreur lors du chargement des catégories', 'Fermer', { 
+            duration: 5000,
+            panelClass: ['snackbar-error']
+          });
         },
       });
     }
@@ -72,15 +81,20 @@ export class Home implements OnInit {
       next: (data) => {
         this.categories.set(data);
         this.sauvegarder();
-        console.log("Catégories rechargées depuis l'API:", data);
         if (showAlert) {
-          alert("Catégories chargées avec succès depuis l'API !");
+          this.snackBar.open('Catégories chargées avec succès depuis l\'API', 'Fermer', { 
+            duration: 3000,
+            panelClass: ['snackbar-success']
+          });
         }
       },
       error: (error) => {
-        console.error('Erreur lors du chargement des catégories :', error);
         if (showAlert) {
-          alert('Erreur : ' + error.message);
+          const errorMsg = error?.error?.message || error?.message || 'Erreur inconnue';
+          this.snackBar.open(`Erreur : ${errorMsg}`, 'Fermer', { 
+            duration: 5000,
+            panelClass: ['snackbar-error']
+          });
         }
       },
     });
@@ -110,17 +124,24 @@ export class Home implements OnInit {
         categorie: category.titre,
       };
 
-      this.http.post('http://localhost:3000/images', payload).subscribe({
+      this.http.post<any>('http://localhost:3000/images', payload).subscribe({
         next: (response) => {
           category.images.push(this.inputUrlImage.trim());
           this.inputUrlImage = '';
           this.categories.set([...this.categories()]);
           this.sauvegarder();
-          console.log('Image ajoutée avec succès:', response);
+          const message = response?.message || 'Image ajoutée avec succès';
+          this.snackBar.open(message, 'Fermer', { 
+            duration: 3000,
+            panelClass: ['snackbar-success']
+          });
         },
         error: (error) => {
-          console.error("Erreur lors de l'ajout de l'image :", error);
-          alert('Erreur : ' + error.message);
+          const errorMsg = error?.error?.message || error?.message || 'Erreur lors de l\'ajout';
+          this.snackBar.open(errorMsg, 'Fermer', { 
+            duration: 5000,
+            panelClass: ['snackbar-error']
+          });
         },
       });
     }
@@ -135,15 +156,23 @@ export class Home implements OnInit {
         categorie: category.titre
       };
 
-      this.http.delete('http://localhost:3000/images', { body: payload }).subscribe({
+      this.http.delete<any>('http://localhost:3000/images', { body: payload }).subscribe({
         next: (response) => {
           category.images.splice(imgIdx, 1);
           this.categories.set([...this.categories()]);
           this.sauvegarder();
-          console.log('Image supprimée avec succès:', response);
+          const message = response?.message || 'Image supprimée avec succès';
+          this.snackBar.open(message, 'Fermer', { 
+            duration: 3000,
+            panelClass: ['snackbar-success']
+          });
         },
         error: (error) => {
-          console.error('Erreur lors de la suppression:', error);
+          const errorMsg = error?.error?.message || error?.message || 'Erreur lors de la suppression';
+          this.snackBar.open(errorMsg, 'Fermer', { 
+            duration: 5000,
+            panelClass: ['snackbar-error']
+          });
         }
       });
     }
@@ -165,7 +194,7 @@ export class Home implements OnInit {
         direction: 'up',
       };
 
-      this.http.patch('http://localhost:3000/images/move', payload).subscribe({
+      this.http.patch<any>('http://localhost:3000/images/move', payload).subscribe({
         next: (response) => {
           category.images.splice(imgIdx, 1);
           categories[destCategoryIdx].images.push(image);
@@ -186,10 +215,18 @@ export class Home implements OnInit {
             this.movedImage.set(null);
           }, 2000);
 
-          console.log('Image déplacée avec succès:', response);
+          const message = response?.message || 'Image déplacée avec succès';
+          this.snackBar.open(message, 'Fermer', { 
+            duration: 2000,
+            panelClass: ['snackbar-info']
+          });
         },
         error: (error) => {
-          console.error('Erreur lors du déplacement:', error);
+          const errorMsg = error?.error?.message || error?.message || 'Erreur lors du déplacement';
+          this.snackBar.open(errorMsg, 'Fermer', { 
+            duration: 5000,
+            panelClass: ['snackbar-error']
+          });
         },
       });
     }
@@ -211,7 +248,7 @@ export class Home implements OnInit {
         direction: 'down',
       };
 
-      this.http.patch('http://localhost:3000/images/move', payload).subscribe({
+      this.http.patch<any>('http://localhost:3000/images/move', payload).subscribe({
         next: (response) => {
           category.images.splice(imgIdx, 1);
           categories[destCategoryIdx].images.push(image);
@@ -232,10 +269,18 @@ export class Home implements OnInit {
             this.movedImage.set(null);
           }, 2000);
 
-          console.log('Image déplacée avec succès:', response);
+          const message = response?.message || 'Image déplacée avec succès';
+          this.snackBar.open(message, 'Fermer', { 
+            duration: 2000,
+            panelClass: ['snackbar-info']
+          });
         },
         error: (error) => {
-          console.error('Erreur lors du déplacement:', error);
+          const errorMsg = error?.error?.message || error?.message || 'Erreur lors du déplacement';
+          this.snackBar.open(errorMsg, 'Fermer', { 
+            duration: 5000,
+            panelClass: ['snackbar-error']
+          });
         },
       });
     }
